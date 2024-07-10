@@ -411,7 +411,9 @@ external opaque_identity : 'a -> 'a = "%opaque"
 (** For the purposes of optimization, [opaque_identity] behaves like an
     unknown (and thus possibly side-effecting) function.
 
-    At runtime, [opaque_identity] disappears altogether.
+    [opaque_identity] creates zero runtime overhead, but does prevent the
+    argument from being garbage collected until after the location the call
+    appears.
 
     A typical use of this function is to prevent pure computations from being
     optimized away in benchmarking loops.  For example:
@@ -420,6 +422,10 @@ external opaque_identity : 'a -> 'a = "%opaque"
         ignore (Sys.opaque_identity (my_pure_computation ()))
       done
     ]}
+
+    Another use is to prevent FFI-shared data from being garbage collected
+    before a certain point by forcing liveness analysis to consider the value
+    alive until the call completes.  For example:
 
     @since 4.03
 *)
